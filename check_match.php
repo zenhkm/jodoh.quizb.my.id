@@ -21,12 +21,35 @@ if (!isset($conn) || !($conn instanceof mysqli)) {
     exit;
 }
 
+// Get my gender
+$my_gender = null;
+$gstmt = $conn->prepare("SELECT gender FROM users WHERE id = ?");
+if ($gstmt) {
+    $gstmt->bind_param('i', $my_id);
+    $gstmt->execute();
+    $gres = $gstmt->get_result();
+    if ($grow = $gres->fetch_assoc()) {
+        $my_gender = $grow['gender'];
+    }
+}
+
+// Only match if gender is known and is 'male' or 'female'
+if ($my_gender !== 'male' && $my_gender !== 'female') {
+    header('Content-Type: application/json');
+    echo json_encode([]);
+    exit;
+}
+
+// Determine opposite gender
+$target_gender = ($my_gender === 'male') ? 'female' : 'male';
+
 // Prepared statement untuk menghindari SQL injection dan memeriksa error
 $sql = "SELECT u.id, u.nickname, COUNT(*) as match_score 
         FROM users u
         JOIN user_traits ut ON u.id = ut.user_id
         WHERE ut.type = 'self' 
         AND u.id != ?
+        AND u.gender = ?
         AND ut.trait_name IN (
             SELECT trait_name FROM user_traits WHERE user_id = ? AND type = 'target'
         )
@@ -43,7 +66,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('ii', $my_id, $my_id);
+$stmt->bind_param('isi', $my_id, $target_gender, $my_id);
 if (!$stmt->execute()) {
     error_log('check_match.php execute failed: ' . $stmt->error);
     http_response_code(500);

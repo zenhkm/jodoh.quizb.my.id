@@ -9,5 +9,7 @@ How to set up:
 3. Open `index.php` in browser. Use two different browsers/incognito to simulate two users.
 
 Notes:
-- The UI is mobile-first and responsive. Chat will appear full-screen on small screens.
+- The UI is mobile-first and responsive.
+- Matching is now limited to opposite gender only (users must choose **Laki-laki** or **Perempuan**).
+- The "Lainnya" gender option was removed and users must select male/female to proceed.
 - Check `error_log` for runtime errors.

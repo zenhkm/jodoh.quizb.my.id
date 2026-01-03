@@ -55,19 +55,24 @@ if ($stmt) {
 }
 
 // 2. SIMPAN PILIHAN KE DATABASE (inkl. gender step)
+$gender_error = null;
 if (isset($_POST['next_step'])) {
     // Step 1: gender selection
     if ($_SESSION['step'] == 1) {
         $gender = isset($_POST['gender']) ? $_POST['gender'] : '';
-        $allowed = ['male', 'female', 'other'];
-        if (!in_array($gender, $allowed)) $gender = 'other';
-        $u = $conn->prepare("UPDATE users SET gender = ? WHERE id = ?");
-        if ($u) {
-            $u->bind_param('si', $gender, $my_id);
-            $u->execute();
+        $allowed = ['male', 'female'];
+        if (!in_array($gender, $allowed)) {
+            // Don't advance — show error
+            $gender_error = 'Silakan pilih jenis kelamin (Laki-laki atau Perempuan).';
+        } else {
+            $u = $conn->prepare("UPDATE users SET gender = ? WHERE id = ?");
+            if ($u) {
+                $u->bind_param('si', $gender, $my_id);
+                $u->execute();
+            }
+            $_SESSION['gender'] = $gender;
+            $_SESSION['step'] = 2;
         }
-        $_SESSION['gender'] = $gender;
-        $_SESSION['step'] = 2;
     } else {
         $selected_traits = $_POST['traits'] ?? [];
         if ($_SESSION['step'] == 2) {
@@ -111,9 +116,11 @@ if (isset($_POST['next_step'])) {
     <?php if ($_SESSION['step'] == 1): ?>
         <h4>1. Pilih Jenis Kelamin Anda:</h4>
         <form method="post">
+            <?php if (!empty($gender_error)): ?>
+                <p style="color:#e74c3c;"><?php echo htmlspecialchars($gender_error); ?></p>
+            <?php endif; ?>
             <label class="trait-item"><input type="radio" name="gender" value="male"> Laki-laki</label>
             <label class="trait-item"><input type="radio" name="gender" value="female"> Perempuan</label>
-            <label class="trait-item"><input type="radio" name="gender" value="other" checked> Lainnya</label>
             <button type="submit" name="next_step">Lanjut</button>
         </form>
 
