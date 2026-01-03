@@ -60,7 +60,7 @@ button.small{padding:6px 8px;font-size:14px}
 
 /* Mobile: bottom-sheet style (avoid covering entire screen) */
 @media (max-width:480px){
-  body{padding:8px}
+  body{padding:8px;padding-bottom:86px} /* ensure space for footer nav */
   .card{padding:12px;border-radius:10px}
   /* Keep chat modal compact on mobile: bottom sheet with modest height */
   .chat-modal{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-width:calc(100% - 24px);max-height:50vh;border-radius:12px}
@@ -68,6 +68,14 @@ button.small{padding:6px 8px;font-size:14px}
   .chat-header{padding:14px}
   .messages{padding:14px}
   .chat-form{position:sticky;bottom:0;padding:10px;background:#fff}
+  /* show bottom nav on mobile */
+  .bottom-nav{display:flex;z-index:10000}
+}
+
+/* Desktop: show top nav, hide bottom nav */
+@media (min-width:481px){
+  .top-nav{display:flex}
+  .bottom-nav{display:none}
 }
 
 /* Backdrop for modal */
