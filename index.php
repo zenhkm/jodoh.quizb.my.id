@@ -117,12 +117,12 @@ if (isset($_POST['next_step'])) {
 <div id="chat-modal" class="chat-modal" role="dialog" aria-hidden="true" aria-label="Chat">
         <div class="chat-header">
             <div class="title" id="chat-with">Chat</div>
-            <button type="button" onclick="closeChat()" aria-label="Tutup chat" class="small">⨉</button>
+            <button id="chat-close" type="button" aria-label="Tutup chat" class="small">⨉</button>
         </div>
         <div id="messages" class="messages" aria-live="polite"></div>
         <form id="chat-form" class="chat-form" aria-label="Kirim pesan">
-            <input id="chat-input" placeholder="Tulis pesan..." aria-label="Pesan">
-            <button type="submit">Kirim</button>
+            <input id="chat-input" name="message" placeholder="Tulis pesan..." aria-label="Pesan">
+            <button id="chat-send" type="submit">Kirim</button>
         </form>
     </div>
 
@@ -202,12 +202,15 @@ if (isset($_POST['next_step'])) {
             .catch(err => console.error('fetchMessages error', err));
     }
 
+    // Send message handler with disable/enable and error feedback
     document.getElementById('chat-form').addEventListener('submit', function(e) {
         e.preventDefault();
         if (!currentChatUser) return;
         const input = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send');
         const text = input.value.trim();
         if (!text) return;
+        sendBtn.disabled = true;
         const fd = new FormData();
         fd.append('receiver_id', currentChatUser);
         fd.append('message', text);
@@ -218,11 +221,15 @@ if (isset($_POST['next_step'])) {
                     input.value = '';
                     fetchMessages();
                 } else {
-                    alert('Gagal mengirim pesan');
+                    alert('Gagal mengirim pesan: ' + (resp.error || 'Unknown'));
                 }
             })
-            .catch(err => { console.error('send message error', err); alert('Gagal mengirim pesan'); });
+            .catch(err => { console.error('send message error', err); alert('Gagal mengirim pesan'); })
+            .finally(() => { sendBtn.disabled = false; input.focus(); });
     });
+
+    // Close button listener (no inline onclick to avoid issues on some mobiles)
+    document.getElementById('chat-close').addEventListener('click', closeChat);
 
     function escapeHtml(unsafe) {
         return unsafe
