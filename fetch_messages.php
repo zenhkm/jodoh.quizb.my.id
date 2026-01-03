@@ -49,11 +49,14 @@ while ($row = $res->fetch_assoc()) {
     ];
 }
 
-// Mark messages sent to me from other as read
-$upd = $conn->prepare("UPDATE messages SET read_at = NOW() WHERE receiver_id = ? AND sender_id = ? AND read_at IS NULL");
-if ($upd) {
-    $upd->bind_param('ii', $me, $other);
-    $upd->execute();
+// Mark messages sent to me from other as read only when requested by the client
+$mark_read = isset($_GET['mark_read']) && $_GET['mark_read'] == '1';
+if ($mark_read) {
+    $upd = $conn->prepare("UPDATE messages SET read_at = NOW() WHERE receiver_id = ? AND sender_id = ? AND read_at IS NULL");
+    if ($upd) {
+        $upd->bind_param('ii', $me, $other);
+        $upd->execute();
+    }
 }
 
 echo json_encode(['success' => true, 'messages' => $messages]);

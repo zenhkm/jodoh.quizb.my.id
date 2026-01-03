@@ -167,10 +167,12 @@ if (isset($_POST['next_step'])) {
         document.getElementById('chat-with').innerText = nickname || 'Chat';
         const modal = document.getElementById('chat-modal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
         document.getElementById('messages').innerHTML = '<p class="loading">Memuat pesan...</p>';
-        fetchMessages();
+        // First fetch: request marking messages as read
+        fetchMessages(true);
         document.getElementById('chat-input').focus();
         if (chatPoll) clearInterval(chatPoll);
-        chatPoll = setInterval(fetchMessages, 3000);
+        // Subsequent polling should NOT re-mark as read
+        chatPoll = setInterval(function(){ fetchMessages(false); }, 3000);
     }
 
     function closeChat() {
@@ -179,9 +181,10 @@ if (isset($_POST['next_step'])) {
         if (chatPoll) clearInterval(chatPoll);
     }
 
-    function fetchMessages() {
+    function fetchMessages(markRead = false) {
         if (!currentChatUser) return;
-        fetch(`fetch_messages.php?user_id=${currentChatUser}`)
+        const url = `fetch_messages.php?user_id=${currentChatUser}` + (markRead ? '&mark_read=1' : '');
+        fetch(url)
             .then(r => r.json())
             .then(data => {
                 if (!data.success) return;
