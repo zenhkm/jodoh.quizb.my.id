@@ -4,6 +4,24 @@ include 'db_config.php';
 
 $traits_list = ["Humoris", "Religius", "Penyabar", "Suka Traveling", "Pekerja Keras", "Penyayang Binatang", "Suka Memasak", "Disiplin"];
 
+// Reset user (hapus record dan session) jika diminta
+if (isset($_GET['reset']) && $_GET['reset'] == '1') {
+    if (isset($_SESSION['user_db_id'])) {
+        $uid = intval($_SESSION['user_db_id']);
+        $stmt = $conn->prepare("DELETE FROM user_traits WHERE user_id = ?");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+
+        $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+    }
+    session_unset();
+    session_destroy();
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 // 1. BUAT USER DI DATABASE SAAT PERTAMA KALI DATANG
 if (!isset($_SESSION['user_db_id'])) {
     $adjectives = ["Panda", "Elang", "Kucing", "Rusa", "Tupai"];
