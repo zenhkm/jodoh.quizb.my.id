@@ -171,9 +171,11 @@ if (isset($_POST['next_step'])) {
   </a>
 </nav>
 <header class="top-nav">
-  <a href="index.php" class="active">Home</a>
-  <a href="messages.php">Pesan</a>
-  <a href="account.php">Akun</a>
+  <div class="top-nav-inner">
+    <a href="index.php" class="active">Home</a>
+    <a href="messages.php">Pesan</a>
+    <a href="account.php">Akun</a>
+  </div>
 </header>
 <script>
     let currentChatUser = null;

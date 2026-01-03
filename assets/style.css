@@ -16,6 +16,7 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-start;
+  min-height:100vh;
 }
 .container{width:100%; max-width:420px;}
 .card{
@@ -25,9 +26,13 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,0.06);
   margin:8px 0;
 }
+.card h3{margin:0 0 16px 0;color:#2c3e50;font-size:22px;}
+.card p{margin:8px 0;line-height:1.6;color:#34495e}
+.card p strong{color:#2c3e50}
 .nickname{font-weight:700;color:#2c3e50;background:#ecf0f1;padding:6px 10px;border-radius:6px;display:inline-block}
 .trait-item{margin:8px 0;display:block;padding-left:4px}
-button{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:8px;cursor:pointer}
+button{background:var(--primary);color:#fff;border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;transition:all 0.2s;box-shadow:0 2px 6px rgba(52,152,219,0.2)}
+button:hover{background:#2980b9;transform:translateY(-1px);box-shadow:0 4px 12px rgba(52,152,219,0.3)}
 button.small{padding:6px 8px;font-size:14px}
 .match-card{border:1px solid #eee;padding:10px;margin-top:10px;border-radius:8px;background:#fff9e6}
 #waiting-area p#status{color:var(--muted);}
@@ -35,9 +40,11 @@ button.small{padding:6px 8px;font-size:14px}
 .loading{color:var(--muted);}
 
 /* Nav: desktop header and mobile footer */
-.top-nav{display:none;background:#fff;padding:10px 16px;border-bottom:1px solid #eee}
-.top-nav a{margin-right:16px;color:#333;text-decoration:none}
-.top-nav a.active{font-weight:700;color:var(--primary)}
+.top-nav{display:none;background:#fff;padding:14px 0;border-bottom:1px solid #eee;position:fixed;top:0;left:0;right:0;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.top-nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:24px}
+.top-nav a{color:#555;text-decoration:none;font-weight:500;transition:color 0.2s;padding:6px 12px;border-radius:6px}
+.top-nav a:hover{color:var(--primary);background:#f8f9fa}
+.top-nav a.active{font-weight:700;color:var(--primary);background:#e3f2fd}
 .bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;height:56px;background:#fff;border-top:1px solid #eee;justify-content:space-around;align-items:center}
 .bottom-nav a{flex:1;text-align:center;padding:8px;color:#333;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .bottom-nav a svg{width:22px;height:22px;margin-bottom:4px;fill:currentColor}
@@ -77,8 +84,12 @@ button.small{padding:6px 8px;font-size:14px}
 
 /* Desktop: show top nav, hide bottom nav */
 @media (min-width:769px){
-  .top-nav{display:flex}
+  .top-nav{display:block}
   .bottom-nav{display:none}
+  body{padding-top:70px}
+  .container{max-width:560px}
+  .card{padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+  .card h3{font-size:26px;margin-bottom:24px}
 }
 
 /* Backdrop for modal */
@@ -92,4 +103,6 @@ button.small{padding:6px 8px;font-size:14px}
 /* Desktop tweaks */
 @media (min-width:601px){
   body{padding:40px}
+  .trait-item{margin:12px 0;font-size:15px}
+  .match-card{padding:16px;margin-top:14px}
 }

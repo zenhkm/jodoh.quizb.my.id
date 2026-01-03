@@ -139,9 +139,11 @@ if (!$edit_mode && $has_data):
   </a>
 </nav>
 <header class="top-nav">
-  <a href="index.php">Home</a>
-  <a href="messages.php">Pesan</a>
-  <a href="account.php" class="active">Akun</a>
+  <div class="top-nav-inner">
+    <a href="index.php">Home</a>
+    <a href="messages.php">Pesan</a>
+    <a href="account.php" class="active">Akun</a>
+  </div>
 </header>
 </body>
 </html>

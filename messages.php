@@ -64,9 +64,11 @@ if ($other > 0) {
   </a>
 </nav> 
 <header class="top-nav">
-  <a href="index.php">Home</a>
-  <a href="messages.php" class="active">Pesan</a>
-  <a href="account.php">Akun</a>
+  <div class="top-nav-inner">
+    <a href="index.php">Home</a>
+    <a href="messages.php" class="active">Pesan</a>
+    <a href="account.php">Akun</a>
+  </div>
 </header>
 
 <script>
