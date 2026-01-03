@@ -148,21 +148,7 @@ if (isset($_POST['next_step'])) {
         <a href="?reset=1" class="reset-link">Reset & Mulai Lagi</a>
     <?php endif; ?>
 
-    <!-- Chat Modal -->
-<div id="chat-modal" class="chat-modal" role="dialog" aria-hidden="true" aria-label="Chat">
-        <div class="chat-header">
-            <div class="title" id="chat-with">Chat</div>
-            <button id="chat-close" type="button" aria-label="Tutup chat" class="small">⨉</button>
-        </div>
-        <div id="messages" class="messages" aria-live="polite"></div>
-        <form id="chat-form" class="chat-form" aria-label="Kirim pesan">
-            <input id="chat-input" name="message" placeholder="Tulis pesan..." aria-label="Pesan">
-            <button id="chat-send" type="submit">Kirim</button>
-        </form>
-    </div>
-
 </div>
-<div id="chat-backdrop" class="chat-backdrop" aria-hidden="true"></div>
 </div> <!-- container -->
 <script>
     let currentChatUser = null;
@@ -181,7 +167,7 @@ if (isset($_POST['next_step'])) {
             div.innerHTML = `
                 <strong>${user.nickname}</strong><br>
                 <small>Kecocokan: ${user.match_count} kriteria</small><br><br>
-                <button onclick="bukaChat(${user.id}, '${user.nickname.replace(/'/g, "\\'")}')">Kirim Pesan</button>
+                <small style="color:#888;">Fitur pesan dinonaktifkan sementara</small>
             `;
             area.appendChild(div);
         });
@@ -198,93 +184,7 @@ if (isset($_POST['next_step'])) {
     setInterval(cariJodoh, 5000);
     cariJodoh();
 
-    function bukaChat(userId, nickname) {
-        currentChatUser = parseInt(userId);
-        document.getElementById('chat-with').innerText = nickname || 'Chat';
-        const modal = document.getElementById('chat-modal');
-        const backdrop = document.getElementById('chat-backdrop');
-        modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-        backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false');
-        document.getElementById('messages').innerHTML = '<p class="loading">Memuat pesan...</p>';
-        // First fetch: request marking messages as read
-        fetchMessages(true);
-        document.getElementById('chat-input').focus();
-        if (chatPoll) clearInterval(chatPoll);
-        // Subsequent polling should NOT re-mark as read
-        chatPoll = setInterval(function(){ fetchMessages(false); }, 3000);
-    }
-
-    function closeChat() {
-        const modal = document.getElementById('chat-modal');
-        const backdrop = document.getElementById('chat-backdrop');
-        modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
-        backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true');
-        currentChatUser = null;
-        if (chatPoll) clearInterval(chatPoll);
-    }
-
-    function fetchMessages(markRead = false) {
-        if (!currentChatUser) return;
-        const url = `fetch_messages.php?user_id=${currentChatUser}` + (markRead ? '&mark_read=1' : '');
-        fetch(url)
-            .then(r => r.json())
-            .then(data => {
-                if (!data.success) return;
-                const ms = data.messages || [];
-                const container = document.getElementById('messages');
-                container.innerHTML = '';
-                ms.forEach(m => {
-                    const el = document.createElement('div');
-                    el.className = 'msg ' + (m.from === <?php echo $my_id; ?> ? 'self' : 'other');
-                    el.innerHTML = `<div class="bubble">${escapeHtml(m.message)}</div>`;
-                    container.appendChild(el);
-                });
-                container.scrollTop = container.scrollHeight;
-            })
-            .catch(err => console.error('fetchMessages error', err));
-    }
-
-    // Send message handler with disable/enable and error feedback
-    document.getElementById('chat-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (!currentChatUser) return;
-        const input = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('chat-send');
-        const text = input.value.trim();
-        if (!text) return;
-        sendBtn.disabled = true;
-        const fd = new FormData();
-        fd.append('receiver_id', currentChatUser);
-        fd.append('message', text);
-        fetch('send_message.php', { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(resp => {
-                if (resp.success) {
-                    input.value = '';
-                    fetchMessages();
-                } else {
-                    alert('Gagal mengirim pesan: ' + (resp.error || 'Unknown'));
-                }
-            })
-            .catch(err => { console.error('send message error', err); alert('Gagal mengirim pesan'); })
-            .finally(() => { sendBtn.disabled = false; input.focus(); });
-    });
-
-    // Close button listener (no inline onclick to avoid issues on some mobiles)
-    document.getElementById('chat-close').addEventListener('click', closeChat);
-    // Backdrop click closes chat
-    document.getElementById('chat-backdrop').addEventListener('click', closeChat);
-    // ESC key should close chat
-    window.addEventListener('keydown', function(e){ if (e.key === 'Escape') { const modal = document.getElementById('chat-modal'); if (modal.classList.contains('open')) closeChat(); } });
-
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+    // Chat feature is disabled. Removed related functions and event listeners.
 
 </script>
 </body>
