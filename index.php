@@ -71,21 +71,13 @@ if (isset($_POST['next_step'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Biro Jodoh Anonim</title>
-    <style>
-        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 50px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; }
-        .nickname { font-weight: bold; color: #2c3e50; background: #ecf0f1; padding: 5px 10px; border-radius: 5px; }
-        .trait-item { margin: 10px 0; display: block; cursor: pointer; }
-        button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; }
-        .match-card { border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-radius: 5px; background: #fff9e6; }
-        /* Chat styles */
-        #chat-modal { font-size: 14px; }
-        #messages div { margin-bottom: 6px; }
-    </style>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
+<div class="container">
 <div class="card">
     <h3>Halo, <span class="nickname"><?php echo $_SESSION['nickname']; ?></span></h3>
     <hr>
@@ -118,23 +110,24 @@ if (isset($_POST['next_step'])) {
             <!-- Match results will be injected here -->
         </div>
         <br>
-        <a href="?reset=1" style="font-size: 12px; color: red;">Reset & Mulai Lagi</a>
+        <a href="?reset=1" class="reset-link">Reset & Mulai Lagi</a>
     <?php endif; ?>
 
     <!-- Chat Modal -->
-    <div id="chat-modal" style="display:none; position:fixed; right:20px; bottom:20px; width:320px; max-height:60vh; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); overflow:hidden; display:flex; flex-direction:column;">
-        <div style="padding:10px; background:#3498db; color:#fff; display:flex; justify-content:space-between; align-items:center;">
-            <div id="chat-with">Chat</div>
-            <button onclick="closeChat()" style="background:transparent;border:none;color:white;cursor:pointer;">⨉</button>
+<div id="chat-modal" class="chat-modal" role="dialog" aria-hidden="true" aria-label="Chat">
+        <div class="chat-header">
+            <div class="title" id="chat-with">Chat</div>
+            <button type="button" onclick="closeChat()" aria-label="Tutup chat" class="small">⨉</button>
         </div>
-        <div id="messages" style="padding:10px; overflow:auto; flex:1; background:#f7f9fb;"></div>
-        <form id="chat-form" style="display:flex; padding:8px; border-top:1px solid #eee;">
-            <input id="chat-input" placeholder="Tulis pesan..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px; margin-right:6px;">
-            <button type="submit" style="background:#2ecc71;color:white;border:none;padding:8px 10px;border-radius:4px;">Kirim</button>
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form" aria-label="Kirim pesan">
+            <input id="chat-input" placeholder="Tulis pesan..." aria-label="Pesan">
+            <button type="submit">Kirim</button>
         </form>
     </div>
 
 </div>
+</div> <!-- container -->
 <script>
     let currentChatUser = null;
     let chatPoll = null;
@@ -172,15 +165,16 @@ if (isset($_POST['next_step'])) {
     function bukaChat(userId, nickname) {
         currentChatUser = parseInt(userId);
         document.getElementById('chat-with').innerText = nickname || 'Chat';
-        document.getElementById('chat-modal').style.display = 'flex';
-        document.getElementById('messages').innerHTML = '<p style="color:#888;">Memuat pesan...</p>';
+        const modal = document.getElementById('chat-modal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+        document.getElementById('messages').innerHTML = '<p class="loading">Memuat pesan...</p>';
         fetchMessages();
+        document.getElementById('chat-input').focus();
         if (chatPoll) clearInterval(chatPoll);
         chatPoll = setInterval(fetchMessages, 3000);
     }
 
     function closeChat() {
-        document.getElementById('chat-modal').style.display = 'none';
+        const modal = document.getElementById('chat-modal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
         currentChatUser = null;
         if (chatPoll) clearInterval(chatPoll);
     }
@@ -196,15 +190,8 @@ if (isset($_POST['next_step'])) {
                 container.innerHTML = '';
                 ms.forEach(m => {
                     const el = document.createElement('div');
-                    el.style.marginBottom = '8px';
-                    el.style.fontSize = '14px';
-                    if (m.from === <?php echo $my_id; ?>) {
-                        el.style.textAlign = 'right';
-                        el.innerHTML = `<div style="display:inline-block;background:#dcf8c6;padding:8px;border-radius:8px;max-width:80%;">${escapeHtml(m.message)}</div>`;
-                    } else {
-                        el.style.textAlign = 'left';
-                        el.innerHTML = `<div style="display:inline-block;background:#fff;padding:8px;border-radius:8px;max-width:80%;border:1px solid #eee;">${escapeHtml(m.message)}</div>`;
-                    }
+                    el.className = 'msg ' + (m.from === <?php echo $my_id; ?> ? 'self' : 'other');
+                    el.innerHTML = `<div class="bubble">${escapeHtml(m.message)}</div>`;
                     container.appendChild(el);
                 });
                 container.scrollTop = container.scrollHeight;
