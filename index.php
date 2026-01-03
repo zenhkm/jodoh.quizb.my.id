@@ -40,29 +40,55 @@ if (!isset($_SESSION['user_db_id'])) {
 
 $my_id = $_SESSION['user_db_id'];
 
-// 2. SIMPAN PILIHAN KE DATABASE
+// Load existing gender and advance step if already set
+$stmt = $conn->prepare("SELECT gender FROM users WHERE id = ?");
+if ($stmt) {
+    $stmt->bind_param('i', $my_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        if (!empty($row['gender'])) {
+            $_SESSION['gender'] = $row['gender'];
+            if ($_SESSION['step'] == 1) $_SESSION['step'] = 2; // skip gender page if already set
+        }
+    }
+}
+
+// 2. SIMPAN PILIHAN KE DATABASE (inkl. gender step)
 if (isset($_POST['next_step'])) {
-    $selected_traits = $_POST['traits'] ?? [];
-    
+    // Step 1: gender selection
     if ($_SESSION['step'] == 1) {
-        // Simpan Kriteria Calon (Target)
-        foreach ($selected_traits as $trait) {
-            $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'target')");
-            $stmt->bind_param("is", $my_id, $trait);
-            $stmt->execute();
+        $gender = isset($_POST['gender']) ? $_POST['gender'] : '';
+        $allowed = ['male', 'female', 'other'];
+        if (!in_array($gender, $allowed)) $gender = 'other';
+        $u = $conn->prepare("UPDATE users SET gender = ? WHERE id = ?");
+        if ($u) {
+            $u->bind_param('si', $gender, $my_id);
+            $u->execute();
         }
-        $_SESSION['criteria'] = $selected_traits;
+        $_SESSION['gender'] = $gender;
         $_SESSION['step'] = 2;
-    } 
-    elseif ($_SESSION['step'] == 2) {
-        // Simpan Sifat Diri (Self)
-        foreach ($selected_traits as $trait) {
-            $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
-            $stmt->bind_param("is", $my_id, $trait);
-            $stmt->execute();
+    } else {
+        $selected_traits = $_POST['traits'] ?? [];
+        if ($_SESSION['step'] == 2) {
+            // Simpan Kriteria Calon (Target)
+            foreach ($selected_traits as $trait) {
+                $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'target')");
+                $stmt->bind_param("is", $my_id, $trait);
+                $stmt->execute();
+            }
+            $_SESSION['criteria'] = $selected_traits;
+            $_SESSION['step'] = 3;
+        } elseif ($_SESSION['step'] == 3) {
+            // Simpan Sifat Diri (Self)
+            foreach ($selected_traits as $trait) {
+                $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
+                $stmt->bind_param("is", $my_id, $trait);
+                $stmt->execute();
+            }
+            $_SESSION['my_traits'] = $selected_traits;
+            $_SESSION['step'] = 4;
         }
-        $_SESSION['my_traits'] = $selected_traits;
-        $_SESSION['step'] = 3;
     }
 }
 ?>
@@ -83,7 +109,16 @@ if (isset($_POST['next_step'])) {
     <hr>
 
     <?php if ($_SESSION['step'] == 1): ?>
-        <h4>1. Pilih Kriteria Calon Pasangan:</h4>
+        <h4>1. Pilih Jenis Kelamin Anda:</h4>
+        <form method="post">
+            <label class="trait-item"><input type="radio" name="gender" value="male"> Laki-laki</label>
+            <label class="trait-item"><input type="radio" name="gender" value="female"> Perempuan</label>
+            <label class="trait-item"><input type="radio" name="gender" value="other" checked> Lainnya</label>
+            <button type="submit" name="next_step">Lanjut</button>
+        </form>
+
+    <?php elseif ($_SESSION['step'] == 2): ?>
+        <h4>2. Pilih Kriteria Calon Pasangan:</h4>
         <form method="post">
             <?php foreach ($traits_list as $t): ?>
                 <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
@@ -91,8 +126,8 @@ if (isset($_POST['next_step'])) {
             <button type="submit" name="next_step">Lanjut</button>
         </form>
 
-    <?php elseif ($_SESSION['step'] == 2): ?>
-        <h4>2. Sekarang, Pilih Sifat Diri Anda:</h4>
+    <?php elseif ($_SESSION['step'] == 3): ?>
+        <h4>3. Sekarang, Pilih Sifat Diri Anda:</h4>
         <p><small>(Agar orang lain bisa menemukan Anda)</small></p>
         <form method="post">
             <?php foreach ($traits_list as $t): ?>
@@ -101,7 +136,7 @@ if (isset($_POST['next_step'])) {
             <button type="submit" name="next_step">Masuk Halaman Tunggu</button>
         </form>
 
-    <?php elseif ($_SESSION['step'] == 3): ?>
+    <?php elseif ($_SESSION['step'] == 4): ?>
         <h4>Halaman Tunggu</h4>
         <p>Mencari seseorang dengan kriteria: <br><strong><?php echo implode(", ", $_SESSION['criteria']); ?></strong></p>
         
