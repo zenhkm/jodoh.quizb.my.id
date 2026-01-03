@@ -79,6 +79,9 @@ if (isset($_POST['next_step'])) {
         .trait-item { margin: 10px 0; display: block; cursor: pointer; }
         button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; }
         .match-card { border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-radius: 5px; background: #fff9e6; }
+        /* Chat styles */
+        #chat-modal { font-size: 14px; }
+        #messages div { margin-bottom: 6px; }
     </style>
 </head>
 <body>
@@ -112,39 +115,134 @@ if (isset($_POST['next_step'])) {
         
         <div id="waiting-area">
             <p id="status">⏳ Sedang mencocokkan...</p>
-            <div class="match-card">
-                <strong>Panda Bijak</strong> (Cocok 80%)<br>
-                <small>Memiliki kriteria yang Anda cari.</small><br><br>
-                <button onclick="alert('Fitur pesan akan segera hadir!')">Kirim Pesan</button>
-            </div>
+            <!-- Match results will be injected here -->
         </div>
         <br>
         <a href="?reset=1" style="font-size: 12px; color: red;">Reset & Mulai Lagi</a>
     <?php endif; ?>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" style="display:none; position:fixed; right:20px; bottom:20px; width:320px; max-height:60vh; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); overflow:hidden; display:flex; flex-direction:column;">
+        <div style="padding:10px; background:#3498db; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+            <div id="chat-with">Chat</div>
+            <button onclick="closeChat()" style="background:transparent;border:none;color:white;cursor:pointer;">⨉</button>
+        </div>
+        <div id="messages" style="padding:10px; overflow:auto; flex:1; background:#f7f9fb;"></div>
+        <form id="chat-form" style="display:flex; padding:8px; border-top:1px solid #eee;">
+            <input id="chat-input" placeholder="Tulis pesan..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px; margin-right:6px;">
+            <button type="submit" style="background:#2ecc71;color:white;border:none;padding:8px 10px;border-radius:4px;">Kirim</button>
+        </form>
+    </div>
+
 </div>
 <script>
-    function cariJodoh() {
-    fetch('check_match.php')
-        .then(response => response.json())
-        .then(data => {
-            const area = document.getElementById('waiting-area');
-            if (data.length > 0) {
-                area.innerHTML = ''; // Bersihkan loading
-                data.forEach(user => {
-                    area.innerHTML += `
-                        <div class="match-card">
-                            <strong>${user.nickname}</strong><br>
-                            <small>Kecocokan: ${user.match_count} kriteria</small><br><br>
-                            <button onclick="bukaChat(${user.id})">Kirim Pesan</button>
-                        </div>
-                    `;
-                });
-            }
-        });
-}
+    let currentChatUser = null;
+    let chatPoll = null;
 
-// Jalankan setiap 5 detik
-setInterval(cariJodoh, 5000);
+    function renderMatches(list) {
+        const area = document.getElementById('waiting-area');
+        area.innerHTML = '';
+        if (!list || list.length === 0) {
+            area.innerHTML = '<p id="status">⏳ Sedang mencocokkan... Belum ada pasangan.</p>';
+            return;
+        }
+        list.forEach(user => {
+            const div = document.createElement('div');
+            div.className = 'match-card';
+            div.innerHTML = `
+                <strong>${user.nickname}</strong><br>
+                <small>Kecocokan: ${user.match_count} kriteria</small><br><br>
+                <button onclick="bukaChat(${user.id}, '${user.nickname.replace(/'/g, "\\'")}')">Kirim Pesan</button>
+            `;
+            area.appendChild(div);
+        });
+    }
+
+    function cariJodoh() {
+        fetch('check_match.php')
+            .then(response => response.json())
+            .then(data => renderMatches(data))
+            .catch(err => console.error('match fetch error', err));
+    }
+
+    // Poll matches every 5s
+    setInterval(cariJodoh, 5000);
+    cariJodoh();
+
+    function bukaChat(userId, nickname) {
+        currentChatUser = parseInt(userId);
+        document.getElementById('chat-with').innerText = nickname || 'Chat';
+        document.getElementById('chat-modal').style.display = 'flex';
+        document.getElementById('messages').innerHTML = '<p style="color:#888;">Memuat pesan...</p>';
+        fetchMessages();
+        if (chatPoll) clearInterval(chatPoll);
+        chatPoll = setInterval(fetchMessages, 3000);
+    }
+
+    function closeChat() {
+        document.getElementById('chat-modal').style.display = 'none';
+        currentChatUser = null;
+        if (chatPoll) clearInterval(chatPoll);
+    }
+
+    function fetchMessages() {
+        if (!currentChatUser) return;
+        fetch(`fetch_messages.php?user_id=${currentChatUser}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                const ms = data.messages || [];
+                const container = document.getElementById('messages');
+                container.innerHTML = '';
+                ms.forEach(m => {
+                    const el = document.createElement('div');
+                    el.style.marginBottom = '8px';
+                    el.style.fontSize = '14px';
+                    if (m.from === <?php echo $my_id; ?>) {
+                        el.style.textAlign = 'right';
+                        el.innerHTML = `<div style="display:inline-block;background:#dcf8c6;padding:8px;border-radius:8px;max-width:80%;">${escapeHtml(m.message)}</div>`;
+                    } else {
+                        el.style.textAlign = 'left';
+                        el.innerHTML = `<div style="display:inline-block;background:#fff;padding:8px;border-radius:8px;max-width:80%;border:1px solid #eee;">${escapeHtml(m.message)}</div>`;
+                    }
+                    container.appendChild(el);
+                });
+                container.scrollTop = container.scrollHeight;
+            })
+            .catch(err => console.error('fetchMessages error', err));
+    }
+
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!currentChatUser) return;
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const fd = new FormData();
+        fd.append('receiver_id', currentChatUser);
+        fd.append('message', text);
+        fetch('send_message.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) {
+                    input.value = '';
+                    fetchMessages();
+                } else {
+                    alert('Gagal mengirim pesan');
+                }
+            })
+            .catch(err => { console.error('send message error', err); alert('Gagal mengirim pesan'); });
+    });
+
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
 </script>
 </body>
 </html>
