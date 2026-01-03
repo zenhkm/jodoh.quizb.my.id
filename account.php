@@ -88,16 +88,36 @@ $t->bind_param('i', $me); $t->execute(); $r = $t->get_result(); $my_traits = [];
 <p><strong><?php echo htmlspecialchars($profile['nickname']); ?></strong></p>
 <?php if (!empty($saved_msg)): ?><p style="color:green"><?php echo htmlspecialchars($saved_msg); ?></p><?php endif; ?>
 <?php if (!empty($error_msg)): ?><p style="color:#e74c3c"><?php echo htmlspecialchars($error_msg); ?></p><?php endif; ?>
-<form method="post">
-    <label class="trait-item">Jenis kelamin:</label>
-    <label class="trait-item"><input type="radio" name="gender" value="male" <?php echo (isset($profile['gender']) && $profile['gender']=='male')? 'checked':''; ?>> Laki-laki</label>
-    <label class="trait-item"><input type="radio" name="gender" value="female" <?php echo (isset($profile['gender']) && $profile['gender']=='female')? 'checked':''; ?>> Perempuan</label>
 
-    <label class="trait-item">Usia:</label>
-    <input type="number" name="age" min="13" max="120" value="<?php echo htmlspecialchars($profile['age'] ?? ''); ?>" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd;margin-bottom:10px;">
+<?php
+// Check if in edit mode
+$edit_mode = isset($_GET['edit']) && $_GET['edit'] == '1';
+$has_data = !empty($profile['gender']) && !empty($profile['age']);
 
-    <button type="submit" name="update_profile">Simpan Profil</button>
-</form>
+if (!$edit_mode && $has_data):
+    // Display mode - show data with edit button
+?>
+    <div style="margin-bottom:20px;">
+        <p><strong>Jenis kelamin:</strong> <?php echo $profile['gender'] == 'male' ? 'Laki-laki' : 'Perempuan'; ?></p>
+        <p><strong>Usia:</strong> <?php echo htmlspecialchars($profile['age']); ?> tahun</p>
+        <a href="?edit=1" style="display:inline-block;background:#3498db;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;margin-top:10px;">Edit Profil</a>
+    </div>
+<?php else: ?>
+    <!-- Edit mode - show form -->
+    <form method="post">
+        <label class="trait-item">Jenis kelamin:</label>
+        <label class="trait-item"><input type="radio" name="gender" value="male" <?php echo (isset($profile['gender']) && $profile['gender']=='male')? 'checked':''; ?>> Laki-laki</label>
+        <label class="trait-item"><input type="radio" name="gender" value="female" <?php echo (isset($profile['gender']) && $profile['gender']=='female')? 'checked':''; ?>> Perempuan</label>
+
+        <label class="trait-item">Usia:</label>
+        <input type="number" name="age" min="13" max="120" value="<?php echo htmlspecialchars($profile['age'] ?? ''); ?>" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd;margin-bottom:10px;" required>
+
+        <button type="submit" name="update_profile">Simpan Profil</button>
+        <?php if ($has_data): ?>
+            <a href="account.php" style="display:inline-block;background:#95a5a6;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;margin-left:8px;">Batal</a>
+        <?php endif; ?>
+    </form>
+<?php endif; ?>
 
 <p>Sifat diri: <br><small><?php echo htmlspecialchars(implode(', ', $my_traits)); ?></small></p>
 <br>
