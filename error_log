@@ -1,0 +1,36 @@
+[03-Jan-2026 21:07:59 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 23
+[03-Jan-2026 21:08:35 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 23
+[03-Jan-2026 21:08:39 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:18 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:23 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:28 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:33 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:38 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
+[03-Jan-2026 21:09:43 Asia/Jakarta] PHP Fatal error:  Uncaught Error: Call to a member function fetch_assoc() on bool in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/quic1934/public_html/jodoh.quizb.my.id/check_match.php on line 26
