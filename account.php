@@ -4,8 +4,41 @@ include 'db_config.php';
 if (!isset($_SESSION['user_db_id'])) { header('Location: index.php'); exit; }
 $me = intval($_SESSION['user_db_id']);
 
-// load profile
-$stmt = $conn->prepare("SELECT nickname, gender FROM users WHERE id = ?");
+$saved_msg = '';
+$error_msg = '';
+
+// Handle profile update (gender + age)
+if (isset($_POST['update_profile'])) {
+    $gender = isset($_POST['gender']) ? $_POST['gender'] : '';
+    $age = isset($_POST['age']) ? intval($_POST['age']) : null;
+    $allowed = ['male', 'female'];
+    if (!in_array($gender, $allowed)) {
+        $error_msg = 'Jenis kelamin tidak valid.';
+    } elseif ($age !== null && ($age < 13 || $age > 120)) {
+        $error_msg = 'Usia harus antara 13 dan 120.';
+    } else {
+        // ensure age column exists
+        $res = $conn->query("SHOW COLUMNS FROM `users` LIKE 'age'");
+        if ($res && $res->num_rows == 0) {
+            $conn->query("ALTER TABLE `users` ADD COLUMN `age` INT DEFAULT NULL");
+        }
+        $u = $conn->prepare("UPDATE users SET gender = ?, age = ? WHERE id = ?");
+        if ($u) {
+            $u->bind_param('sii', $gender, $age, $me);
+            if ($u->execute()) {
+                $saved_msg = 'Profil berhasil diperbarui.';
+                $_SESSION['gender'] = $gender;
+            } else {
+                $error_msg = 'Gagal menyimpan profil. ' . $u->error;
+            }
+        } else {
+            $error_msg = 'Gagal menyiapkan query: ' . $conn->error;
+        }
+    }
+}
+
+// load profile (including age)
+$stmt = $conn->prepare("SELECT nickname, gender, age FROM users WHERE id = ?");
 $stmt->bind_param('i', $me); $stmt->execute(); $res = $stmt->get_result(); $profile = $res->fetch_assoc();
 
 // load self traits
@@ -24,7 +57,19 @@ $t->bind_param('i', $me); $t->execute(); $r = $t->get_result(); $my_traits = [];
 <div class="container"><div class="card">
 <h3>Akun</h3>
 <p><strong><?php echo htmlspecialchars($profile['nickname']); ?></strong></p>
-<p>Jenis kelamin: <strong><?php echo htmlspecialchars($profile['gender'] ?? 'Belum diisi'); ?></strong></p>
+<?php if (!empty($saved_msg)): ?><p style="color:green"><?php echo htmlspecialchars($saved_msg); ?></p><?php endif; ?>
+<?php if (!empty($error_msg)): ?><p style="color:#e74c3c"><?php echo htmlspecialchars($error_msg); ?></p><?php endif; ?>
+<form method="post">
+    <label class="trait-item">Jenis kelamin:</label>
+    <label class="trait-item"><input type="radio" name="gender" value="male" <?php echo (isset($profile['gender']) && $profile['gender']=='male')? 'checked':''; ?>> Laki-laki</label>
+    <label class="trait-item"><input type="radio" name="gender" value="female" <?php echo (isset($profile['gender']) && $profile['gender']=='female')? 'checked':''; ?>> Perempuan</label>
+
+    <label class="trait-item">Usia:</label>
+    <input type="number" name="age" min="13" max="120" value="<?php echo htmlspecialchars($profile['age'] ?? ''); ?>" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ddd;margin-bottom:10px;">
+
+    <button type="submit" name="update_profile">Simpan Profil</button>
+</form>
+
 <p>Sifat diri: <br><small><?php echo htmlspecialchars(implode(', ', $my_traits)); ?></small></p>
 <br>
 <a href="?reset=1" class="reset-link">Reset & Mulai Lagi (reset kriteria calon)</a>
