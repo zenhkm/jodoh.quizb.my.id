@@ -162,6 +162,7 @@ if (isset($_POST['next_step'])) {
     </div>
 
 </div>
+<div id="chat-backdrop" class="chat-backdrop" aria-hidden="true"></div>
 </div> <!-- container -->
 <script>
     let currentChatUser = null;
@@ -200,7 +201,10 @@ if (isset($_POST['next_step'])) {
     function bukaChat(userId, nickname) {
         currentChatUser = parseInt(userId);
         document.getElementById('chat-with').innerText = nickname || 'Chat';
-        const modal = document.getElementById('chat-modal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+        const modal = document.getElementById('chat-modal');
+        const backdrop = document.getElementById('chat-backdrop');
+        modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+        backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false');
         document.getElementById('messages').innerHTML = '<p class="loading">Memuat pesan...</p>';
         // First fetch: request marking messages as read
         fetchMessages(true);
@@ -211,7 +215,10 @@ if (isset($_POST['next_step'])) {
     }
 
     function closeChat() {
-        const modal = document.getElementById('chat-modal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+        const modal = document.getElementById('chat-modal');
+        const backdrop = document.getElementById('chat-backdrop');
+        modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+        backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true');
         currentChatUser = null;
         if (chatPoll) clearInterval(chatPoll);
     }
@@ -265,6 +272,10 @@ if (isset($_POST['next_step'])) {
 
     // Close button listener (no inline onclick to avoid issues on some mobiles)
     document.getElementById('chat-close').addEventListener('click', closeChat);
+    // Backdrop click closes chat
+    document.getElementById('chat-backdrop').addEventListener('click', closeChat);
+    // ESC key should close chat
+    window.addEventListener('keydown', function(e){ if (e.key === 'Escape') { const modal = document.getElementById('chat-modal'); if (modal.classList.contains('open')) closeChat(); } });
 
     function escapeHtml(unsafe) {
         return unsafe

@@ -50,16 +50,25 @@ button.small{padding:6px 8px;font-size:14px}
 .msg.self .bubble{background:#dcf8c6}
 .msg.other .bubble{background:#fff;border:1px solid #eee}
 
-/* Mobile: full-screen chat */
+/* Mobile: bottom-sheet style (avoid covering entire screen) */
 @media (max-width:480px){
   body{padding:8px}
   .card{padding:12px;border-radius:10px}
-  /* Keep chat modal compact on mobile: inset with small margins instead of full-screen */
-  .chat-modal{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-width:calc(100% - 24px);max-height:90vh;border-radius:12px}
+  /* Keep chat modal compact on mobile: bottom sheet with modest height */
+  .chat-modal{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-width:calc(100% - 24px);max-height:50vh;border-radius:12px}
+  .chat-modal .messages{max-height:calc(50vh - 120px);}
   .chat-header{padding:14px}
   .messages{padding:14px}
   .chat-form{position:sticky;bottom:0;padding:10px;background:#fff}
 }
+
+/* Backdrop for modal */
+.chat-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.2);z-index:9998}
+.chat-backdrop.open{display:block}
+
+/* Slight elevation when open */
+.chat-modal.open{box-shadow:0 16px 40px rgba(0,0,0,0.16);}
+
 
 /* Desktop tweaks */
 @media (min-width:601px){
