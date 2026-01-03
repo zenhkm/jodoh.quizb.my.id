@@ -12,4 +12,6 @@ Notes:
 - The UI is mobile-first and responsive.
 - Matching is now limited to opposite gender only (users must choose **Laki-laki** or **Perempuan**).
 - The "Lainnya" gender option was removed and users must select male/female to proceed.
+- Messaging is available via a separate `messages.php` page. From the Home page click **Kirim Pesan** on a match to open the conversation.
+- On mobile, a footer nav always shows 3 tabs: **Home**, **Pesan**, **Akun**. On desktop a header nav is shown.
 - Check `error_log` for runtime errors.

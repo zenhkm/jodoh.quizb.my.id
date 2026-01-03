@@ -156,6 +156,16 @@ if (isset($_POST['next_step'])) {
 
 </div>
 </div> <!-- container -->
+<nav class="bottom-nav">
+  <a href="index.php" class="nav-item active">Home</a>
+  <a href="messages.php" class="nav-item">Pesan</a>
+  <a href="account.php" class="nav-item">Akun</a>
+</nav>
+<header class="top-nav">
+  <a href="index.php" class="active">Home</a>
+  <a href="messages.php">Pesan</a>
+  <a href="account.php">Akun</a>
+</header>
 <script>
     let currentChatUser = null;
     let chatPoll = null;
@@ -173,7 +183,7 @@ if (isset($_POST['next_step'])) {
             div.innerHTML = `
                 <strong>${user.nickname}</strong><br>
                 <small>Kecocokan: ${user.match_count} kriteria</small><br><br>
-                <small style="color:#888;">Fitur pesan dinonaktifkan sementara</small>
+                <a class="msg-link" href="messages.php?user_id=${user.id}"><button>Kirim Pesan</button></a>
             `;
             area.appendChild(div);
         });
