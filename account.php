@@ -17,29 +17,58 @@ if (isset($_POST['update_profile'])) {
     } elseif ($age !== null && ($age < 13 || $age > 120)) {
         $error_msg = 'Usia harus antara 13 dan 120.';
     } else {
-        // ensure age column exists
-        $res = $conn->query("SHOW COLUMNS FROM `users` LIKE 'age'");
-        if ($res && $res->num_rows == 0) {
-            $conn->query("ALTER TABLE `users` ADD COLUMN `age` INT DEFAULT NULL");
+        // Check if age column exists, add if missing
+        $col_check = $conn->query("SHOW COLUMNS FROM `users` LIKE 'age'");
+        if ($col_check && $col_check->num_rows == 0) {
+            // Try to add age column; ignore if fails (might already exist or permission issue)
+            @$conn->query("ALTER TABLE `users` ADD COLUMN `age` INT DEFAULT NULL");
         }
+        
+        // Try to update with age first, fallback to gender-only if age column missing
         $u = $conn->prepare("UPDATE users SET gender = ?, age = ? WHERE id = ?");
         if ($u) {
             $u->bind_param('sii', $gender, $age, $me);
-            if ($u->execute()) {
+            if (@$u->execute()) {
                 $saved_msg = 'Profil berhasil diperbarui.';
                 $_SESSION['gender'] = $gender;
             } else {
-                $error_msg = 'Gagal menyimpan profil. ' . $u->error;
+                // Fallback: update gender only
+                $u2 = $conn->prepare("UPDATE users SET gender = ? WHERE id = ?");
+                if ($u2) {
+                    $u2->bind_param('si', $gender, $me);
+                    if ($u2->execute()) {
+                        $saved_msg = 'Profil berhasil diperbarui (usia tidak tersimpan).';
+                        $_SESSION['gender'] = $gender;
+                    } else {
+                        $error_msg = 'Gagal menyimpan profil.';
+                    }
+                } else {
+                    $error_msg = 'Gagal menyimpan profil.';
+                }
             }
         } else {
-            $error_msg = 'Gagal menyiapkan query: ' . $conn->error;
+            $error_msg = 'Gagal menyiapkan query.';
         }
     }
 }
 
-// load profile (including age)
-$stmt = $conn->prepare("SELECT nickname, gender, age FROM users WHERE id = ?");
+// load profile (including age if column exists)
+$stmt = $conn->prepare("SELECT nickname, gender FROM users WHERE id = ?");
 $stmt->bind_param('i', $me); $stmt->execute(); $res = $stmt->get_result(); $profile = $res->fetch_assoc();
+
+// Try to get age if column exists
+$age_check = $conn->query("SHOW COLUMNS FROM `users` LIKE 'age'");
+if ($age_check && $age_check->num_rows > 0) {
+    $stmt2 = $conn->prepare("SELECT age FROM users WHERE id = ?");
+    if ($stmt2) {
+        $stmt2->bind_param('i', $me);
+        $stmt2->execute();
+        $res2 = $stmt2->get_result();
+        if ($row2 = $res2->fetch_assoc()) {
+            $profile['age'] = $row2['age'];
+        }
+    }
+}
 
 // load self traits
 $t = $conn->prepare("SELECT trait_name FROM user_traits WHERE user_id = ? AND type = 'self'");
