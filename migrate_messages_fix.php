@@ -8,18 +8,27 @@
 include 'db_config.php';
 
 function column_exists($conn, $table, $col) {
-    $q = $conn->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
-    $q->bind_param('s', $col);
-    $q->execute();
-    $r = $q->get_result();
-    return ($r && $r->num_rows > 0);
+    // Prepared statements may fail for SHOW queries on some MySQL versions; use a safe direct query instead
+    $t = $conn->real_escape_string($table);
+    $c = $conn->real_escape_string($col);
+    $sql = "SHOW COLUMNS FROM `$t` LIKE '" . $c . "'";
+    $res = $conn->query($sql);
+    if ($res === false) {
+        error_log("column_exists query failed: " . $conn->error);
+        return false;
+    }
+    return ($res && $res->num_rows > 0);
 }
 
 function index_exists($conn, $table, $col) {
-    $stmt = $conn->prepare("SHOW INDEX FROM `$table` WHERE Column_name = ?");
-    $stmt->bind_param('s', $col);
-    $stmt->execute();
-    $res = $stmt->get_result();
+    $t = $conn->real_escape_string($table);
+    $c = $conn->real_escape_string($col);
+    $sql = "SHOW INDEX FROM `$t` WHERE Column_name = '" . $c . "'";
+    $res = $conn->query($sql);
+    if ($res === false) {
+        error_log("index_exists query failed: " . $conn->error);
+        return false;
+    }
     return ($res && $res->num_rows > 0);
 }
 
