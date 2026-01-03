@@ -59,8 +59,8 @@ button.small{padding:6px 8px;font-size:14px}
 .msg.other .bubble{background:#fff;border:1px solid #eee}
 
 /* Mobile: bottom-sheet style (avoid covering entire screen) */
-@media (max-width:480px){
-  body{padding:8px;padding-bottom:86px} /* ensure space for footer nav */
+@media (max-width:768px){
+  body{padding:8px;padding-bottom:96px} /* ensure space for footer nav on larger phones */
   .card{padding:12px;border-radius:10px}
   /* Keep chat modal compact on mobile: bottom sheet with modest height */
   .chat-modal{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-width:calc(100% - 24px);max-height:50vh;border-radius:12px}
@@ -70,10 +70,11 @@ button.small{padding:6px 8px;font-size:14px}
   .chat-form{position:sticky;bottom:0;padding:10px;background:#fff}
   /* show bottom nav on mobile */
   .bottom-nav{display:flex;z-index:10000}
+  .bottom-nav a{display:flex;flex-direction:column;align-items:center;font-size:13px}
 }
 
 /* Desktop: show top nav, hide bottom nav */
-@media (min-width:481px){
+@media (min-width:769px){
   .top-nav{display:flex}
   .bottom-nav{display:none}
 }
