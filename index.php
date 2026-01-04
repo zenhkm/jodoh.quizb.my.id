@@ -68,6 +68,7 @@ if ($stmt) {
 
 // 2. SIMPAN PILIHAN KE DATABASE (inkl. gender step)
 $gender_error = null;
+$trait_error = null;
 if (isset($_POST['next_step'])) {
     // Step 1: gender selection
     if ($_SESSION['step'] == 1) {
@@ -87,41 +88,46 @@ if (isset($_POST['next_step'])) {
         }
     } else {
         $selected_traits = $_POST['traits'] ?? [];
-        if ($_SESSION['step'] == 2) {
-            // Simpan Kriteria Calon (Target)
-            foreach ($selected_traits as $trait) {
-                $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'target')");
-                $stmt->bind_param("is", $my_id, $trait);
-                $stmt->execute();
-            }
-            $_SESSION['criteria'] = $selected_traits;
-            $_SESSION['step'] = 3;
-        } elseif ($_SESSION['step'] == 3) {
-            // Simpan Sifat Diri (Self)
-            foreach ($selected_traits as $trait) {
-                $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
-                $stmt->bind_param("is", $my_id, $trait);
-                $stmt->execute();
-            }
+        $new_trait = isset($_POST['new_trait']) ? trim($_POST['new_trait']) : '';
 
-            // Cek jika ada kriteria baru yang ditambahkan
-            $new_trait = isset($_POST['new_trait']) ? trim($_POST['new_trait']) : '';
-            if (!empty($new_trait)) {
-                // 1. Masukkan ke tabel master traits jika belum ada
-                $stmt_master = $conn->prepare("INSERT IGNORE INTO traits (name) VALUES (?)");
-                $stmt_master->bind_param("s", $new_trait);
-                $stmt_master->execute();
+        if (empty($selected_traits) && empty($new_trait)) {
+            $trait_error = 'Silakan pilih minimal satu kriteria/sifat.';
+        } else {
+            if ($_SESSION['step'] == 2) {
+                // Simpan Kriteria Calon (Target)
+                foreach ($selected_traits as $trait) {
+                    $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'target')");
+                    $stmt->bind_param("is", $my_id, $trait);
+                    $stmt->execute();
+                }
+                $_SESSION['criteria'] = $selected_traits;
+                $_SESSION['step'] = 3;
+            } elseif ($_SESSION['step'] == 3) {
+                // Simpan Sifat Diri (Self)
+                foreach ($selected_traits as $trait) {
+                    $stmt = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
+                    $stmt->bind_param("is", $my_id, $trait);
+                    $stmt->execute();
+                }
 
-                // 2. Masukkan ke user_traits untuk user ini
-                $stmt_user = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
-                $stmt_user->bind_param("is", $my_id, $new_trait);
-                $stmt_user->execute();
-                
-                $selected_traits[] = $new_trait;
+                // Cek jika ada kriteria baru yang ditambahkan
+                if (!empty($new_trait)) {
+                    // 1. Masukkan ke tabel master traits jika belum ada
+                    $stmt_master = $conn->prepare("INSERT IGNORE INTO traits (name) VALUES (?)");
+                    $stmt_master->bind_param("s", $new_trait);
+                    $stmt_master->execute();
+
+                    // 2. Masukkan ke user_traits untuk user ini
+                    $stmt_user = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
+                    $stmt_user->bind_param("is", $my_id, $new_trait);
+                    $stmt_user->execute();
+                    
+                    $selected_traits[] = $new_trait;
+                }
+
+                $_SESSION['my_traits'] = $selected_traits;
+                $_SESSION['step'] = 4;
             }
-
-            $_SESSION['my_traits'] = $selected_traits;
-            $_SESSION['step'] = 4;
         }
     }
 }
@@ -157,8 +163,11 @@ if (isset($_POST['next_step'])) {
 
     <?php elseif ($_SESSION['step'] == 2): ?>
         <h4>2. Pilih Kriteria Calon Pasangan:</h4>
+        <?php if (!empty($trait_error)): ?>
+            <p style="color:#e74c3c; font-size:14px;"><?php echo htmlspecialchars($trait_error); ?></p>
+        <?php endif; ?>
         <input type="text" id="search-traits" placeholder="Cari kriteria..." style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box;">
-        <form method="post">
+        <form method="post" onsubmit="return validateTraits(this)">
             <div class="traits-list-container">
                 <?php foreach ($traits_list as $t): ?>
                     <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
@@ -170,8 +179,11 @@ if (isset($_POST['next_step'])) {
     <?php elseif ($_SESSION['step'] == 3): ?>
         <h4>3. Sekarang, Pilih Sifat Diri Anda:</h4>
         <p><small>(Agar orang lain bisa menemukan Anda)</small></p>
+        <?php if (!empty($trait_error)): ?>
+            <p style="color:#e74c3c; font-size:14px;"><?php echo htmlspecialchars($trait_error); ?></p>
+        <?php endif; ?>
         <input type="text" id="search-traits" placeholder="Cari sifat diri..." style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box;">
-        <form method="post">
+        <form method="post" onsubmit="return validateTraits(this)">
             <div class="traits-list-container">
                 <?php foreach ($traits_list as $t): ?>
                     <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
@@ -243,6 +255,22 @@ if (isset($_POST['next_step'])) {
                 window.location.href = '?reset=1';
             }
         });
+    }
+
+    function validateTraits(form) {
+        const checkboxes = form.querySelectorAll('input[name="traits[]"]:checked');
+        const newTrait = form.querySelector('input[name="new_trait"]');
+        
+        if (checkboxes.length === 0 && (!newTrait || newTrait.value.trim() === "")) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilihan Kosong',
+                text: 'Silakan pilih minimal satu kriteria atau sifat sebelum melanjutkan.',
+                confirmButtonColor: '#3498db'
+            });
+            return false;
+        }
+        return true;
     }
 
     function renderMatches(list) {
