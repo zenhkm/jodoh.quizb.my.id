@@ -173,6 +173,38 @@ button.small{padding:6px 8px;font-size:14px}
   text-align: center;
   font-weight: bold;
 }
+.conv-del-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 0;
+}
+.conv-item-wrapper:hover .conv-del-btn {
+  opacity: 1;
+}
+/* Always show on mobile */
+@media (max-width: 768px) {
+  .conv-del-btn {
+    opacity: 1;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    right: 5px;
+  }
+}
 
 /* Desktop tweaks */
 @media (min-width:601px){

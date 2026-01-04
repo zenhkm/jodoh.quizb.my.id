@@ -146,6 +146,10 @@ if (otherId) {
                 return;
             }
             convs.forEach(c => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'conv-item-wrapper';
+                wrapper.style.position = 'relative';
+                
                 const a = document.createElement('a');
                 a.href = 'messages.php?user_id=' + c.user_id;
                 a.className = 'conv-item';
@@ -182,10 +186,38 @@ if (otherId) {
                         </div>
                     </div>
                 `;
-                el.appendChild(a);
+                
+                // Delete button
+                const delBtn = document.createElement('button');
+                delBtn.innerHTML = '🗑️';
+                delBtn.className = 'conv-del-btn';
+                delBtn.title = 'Hapus percakapan';
+                delBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteConversation(c.user_id);
+                };
+
+                wrapper.appendChild(a);
+                wrapper.appendChild(delBtn);
+                el.appendChild(wrapper);
             });
         });
 }
+
+// Delete conversation function
+window.deleteConversation = function(userId) {
+    if(!confirm('Hapus seluruh percakapan dengan pengguna ini?')) return;
+    const fd = new FormData();
+    fd.append('user_id', userId);
+    fetch('delete_conversation.php', {method:'POST', body:fd})
+        .then(r=>r.json())
+        .then(d=>{
+            if(d.success) location.reload();
+            else alert('Gagal menghapus percakapan');
+        })
+        .catch(e=>console.error(e));
+};
 
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 </script>
