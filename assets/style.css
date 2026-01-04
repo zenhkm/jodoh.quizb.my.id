@@ -87,7 +87,7 @@ button.small{padding:6px 8px;font-size:14px}
   .top-nav{display:block}
   .bottom-nav{display:none}
   body{padding-top:80px}
-  .container{max-width:960px;width:90%}
+  .container{max-width:1200px;width:100%;padding:0 20px}
   .card{padding:40px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
   .card h3{font-size:28px;margin-bottom:24px}
 }
