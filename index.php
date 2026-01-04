@@ -4,7 +4,7 @@ include 'db_config.php';
 
 // Ambil daftar kriteria dari database
 $traits_list = [];
-$res_traits = $conn->query("SELECT name FROM traits ORDER BY id ASC");
+$res_traits = $conn->query("SELECT name FROM traits ORDER BY name ASC");
 if ($res_traits && $res_traits->num_rows > 0) {
     while ($row = $res_traits->fetch_assoc()) {
         $traits_list[] = $row['name'];
@@ -12,6 +12,7 @@ if ($res_traits && $res_traits->num_rows > 0) {
 } else {
     // Fallback jika tabel belum ada atau kosong
     $traits_list = ["Humoris", "Religius", "Penyabar", "Suka Traveling", "Pekerja Keras", "Penyayang Binatang", "Suka Memasak", "Disiplin"];
+    sort($traits_list);
 }
 
 // Reset kriteria calon pasangan saja jika diminta
