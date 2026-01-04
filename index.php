@@ -192,8 +192,10 @@ if (isset($_POST['next_step'])) {
             const div = document.createElement('div');
             div.className = 'match-card';
             div.innerHTML = `
-                <strong>${user.nickname}</strong><br>
-                <small>Kecocokan: ${user.match_count} kriteria</small><br><br>
+                <a href="profile.php?id=${user.id}" style="text-decoration:none;color:inherit;display:block;margin-bottom:8px;">
+                    <strong style="font-size:18px;color:#2c3e50;">${user.nickname}</strong>
+                </a>
+                <small style="color:#7f8c8d;">Kecocokan: ${user.match_count} kriteria</small><br><br>
                 <a class="msg-link" href="messages.php?user_id=${user.id}"><button>Kirim Pesan</button></a>
             `;
             area.appendChild(div);

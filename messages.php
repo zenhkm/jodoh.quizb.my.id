@@ -35,7 +35,14 @@ if ($other > 0) {
     <h3>Pesan</h3>
     <p><small>Selalu pilih "Kirim Pesan" pada match untuk membuka percakapan.</small></p>
     <?php if ($other_info): ?>
-        <h4>Obrolan dengan <?php echo htmlspecialchars($other_info['nickname']); ?></h4>
+        <div style="display:flex;align-items:center;margin-bottom:16px;">
+            <a href="profile.php?id=<?php echo $other; ?>" style="text-decoration:none;color:inherit;display:flex;align-items:center;">
+                <div style="width:40px;height:40px;background:#e0e0e0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;margin-right:10px;color:#555;">
+                    <?php echo strtoupper(substr($other_info['nickname'], 0, 1)); ?>
+                </div>
+                <h4 style="margin:0;"><?php echo htmlspecialchars($other_info['nickname']); ?></h4>
+            </a>
+        </div>
         <div id="messages" class="messages">Memuat...</div>
         <form id="msg-form" class="chat-form">
             <input id="msg-input" name="message" placeholder="Tulis pesan...">
