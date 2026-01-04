@@ -153,20 +153,26 @@ if (isset($_POST['next_step'])) {
 
     <?php elseif ($_SESSION['step'] == 2): ?>
         <h4>2. Pilih Kriteria Calon Pasangan:</h4>
+        <input type="text" id="search-traits" placeholder="Cari kriteria..." style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box;">
         <form method="post">
-            <?php foreach ($traits_list as $t): ?>
-                <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
-            <?php endforeach; ?>
+            <div class="traits-list-container">
+                <?php foreach ($traits_list as $t): ?>
+                    <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
+                <?php endforeach; ?>
+            </div>
             <button type="submit" name="next_step">Lanjut</button>
         </form>
 
     <?php elseif ($_SESSION['step'] == 3): ?>
         <h4>3. Sekarang, Pilih Sifat Diri Anda:</h4>
         <p><small>(Agar orang lain bisa menemukan Anda)</small></p>
+        <input type="text" id="search-traits" placeholder="Cari sifat diri..." style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd; box-sizing:border-box;">
         <form method="post">
-            <?php foreach ($traits_list as $t): ?>
-                <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
-            <?php endforeach; ?>
+            <div class="traits-list-container">
+                <?php foreach ($traits_list as $t): ?>
+                    <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
+                <?php endforeach; ?>
+            </div>
             
             <div style="margin-top:10px; padding:10px; border:1px dashed #ccc; border-radius:8px;">
                 <p style="margin:0 0 8px 0; font-size:14px; color:#666;">Kriteria tidak ada? Tambahkan sendiri:</p>
@@ -265,8 +271,22 @@ if (isset($_POST['next_step'])) {
     setInterval(cariJodoh, 5000);
     cariJodoh();
 
-    // Chat feature is disabled. Removed related functions and event listeners.
-
+    // Live Search for Traits
+    const searchInput = document.getElementById('search-traits');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const items = document.querySelectorAll('.trait-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
 </script>
 </body>
 </html>
