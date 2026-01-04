@@ -33,7 +33,7 @@ if ($other > 0) {
 <div class="container">
 <div class="card">
     <h3>Pesan</h3>
-    <p><small>Selalu pilih "Kirim Pesan" pada match untuk membuka percakapan.</small></p>
+    
     <?php if ($other_info): ?>
         <div style="display:flex;align-items:center;margin-bottom:16px;">
             <a href="profile.php?id=<?php echo $other; ?>" style="text-decoration:none;color:inherit;display:flex;align-items:center;">
@@ -91,7 +91,16 @@ if (otherId) {
                 ms.forEach(m => {
                     const div = document.createElement('div');
                     div.className = 'msg ' + (m.from === <?php echo $me; ?> ? 'self' : 'other');
-                    div.innerHTML = '<div class="bubble">' + escapeHtml(m.message) + '</div>';
+                    
+                    // Delete button
+                    const delBtn = `<span class="del-btn" onclick="deleteMessage(${m.id})" title="Hapus pesan">🗑️</span>`;
+                    
+                    div.innerHTML = `
+                        <div class="bubble">
+                            ${escapeHtml(m.message)}
+                        </div>
+                        ${delBtn}
+                    `;
                     container.appendChild(div);
                 });
                 container.scrollTop = container.scrollHeight;
@@ -99,6 +108,20 @@ if (otherId) {
     }
     loadMessages();
     setInterval(loadMessages, 3000);
+
+    // Delete message function
+    window.deleteMessage = function(id) {
+        if(!confirm('Hapus pesan ini?')) return;
+        const fd = new FormData();
+        fd.append('id', id);
+        fetch('delete_message.php', {method:'POST', body:fd})
+            .then(r=>r.json())
+            .then(d=>{
+                if(d.success) loadMessages();
+                else alert('Gagal menghapus');
+            })
+            .catch(e=>console.error(e));
+    };
 
     document.getElementById('msg-form').addEventListener('submit', function(e){
         e.preventDefault();

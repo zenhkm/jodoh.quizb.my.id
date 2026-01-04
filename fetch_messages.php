@@ -28,9 +28,20 @@ $conn->query("CREATE TABLE IF NOT EXISTS messages (
     INDEX(receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+// Ensure delete flags exist
+$cols = $conn->query("SHOW COLUMNS FROM messages LIKE 'deleted_by_sender'");
+if ($cols && $cols->num_rows == 0) {
+    $conn->query("ALTER TABLE messages ADD COLUMN deleted_by_sender TINYINT(1) DEFAULT 0");
+    $conn->query("ALTER TABLE messages ADD COLUMN deleted_by_receiver TINYINT(1) DEFAULT 0");
+}
+
 // Fetch conversation
 $sql = "SELECT id, sender_id, receiver_id, message, created_at, read_at FROM messages 
-        WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+        WHERE (
+            (sender_id = ? AND receiver_id = ? AND deleted_by_sender = 0) 
+            OR 
+            (sender_id = ? AND receiver_id = ? AND deleted_by_receiver = 0)
+        )
         ORDER BY created_at ASC";
 
 $stmt = $conn->prepare($sql);

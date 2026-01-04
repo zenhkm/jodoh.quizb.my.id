@@ -66,6 +66,8 @@ button.small{padding:6px 8px;font-size:14px}
 .msg .bubble{display:inline-block;padding:8px;border-radius:10px;max-width:78%;}
 .msg.self .bubble{background:#dcf8c6}
 .msg.other .bubble{background:#fff;border:1px solid #eee}
+.del-btn{cursor:pointer;font-size:12px;margin:0 6px;opacity:0.5;vertical-align:middle}
+.del-btn:hover{opacity:1}
 
 /* Mobile: bottom-sheet style (avoid covering entire screen) */
 @media (max-width:768px){

@@ -17,17 +17,32 @@ $conn->query("CREATE TABLE IF NOT EXISTS messages (
     INDEX(receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+// Ensure delete flags exist
+$cols = $conn->query("SHOW COLUMNS FROM messages LIKE 'deleted_by_sender'");
+if ($cols && $cols->num_rows == 0) {
+    $conn->query("ALTER TABLE messages ADD COLUMN deleted_by_sender TINYINT(1) DEFAULT 0");
+    $conn->query("ALTER TABLE messages ADD COLUMN deleted_by_receiver TINYINT(1) DEFAULT 0");
+}
+
 $sql = "SELECT 
             u.id as user_id, 
             u.nickname,
-            (SELECT message FROM messages m WHERE (m.sender_id = u.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_message,
-            (SELECT created_at FROM messages m WHERE (m.sender_id = u.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_time,
-            (SELECT COUNT(*) FROM messages m WHERE m.sender_id = u.id AND m.receiver_id = ? AND m.read_at IS NULL) as unread
+            (SELECT message FROM messages m WHERE 
+                ((m.sender_id = u.id AND m.receiver_id = ? AND m.deleted_by_receiver = 0) 
+                OR (m.sender_id = ? AND m.receiver_id = u.id AND m.deleted_by_sender = 0))
+                ORDER BY created_at DESC LIMIT 1
+            ) as last_message,
+            (SELECT created_at FROM messages m WHERE 
+                ((m.sender_id = u.id AND m.receiver_id = ? AND m.deleted_by_receiver = 0) 
+                OR (m.sender_id = ? AND m.receiver_id = u.id AND m.deleted_by_sender = 0))
+                ORDER BY created_at DESC LIMIT 1
+            ) as last_time,
+            (SELECT COUNT(*) FROM messages m WHERE m.sender_id = u.id AND m.receiver_id = ? AND m.read_at IS NULL AND m.deleted_by_receiver = 0) as unread
         FROM users u
         WHERE u.id IN (
-            SELECT sender_id FROM messages WHERE receiver_id = ?
+            SELECT sender_id FROM messages WHERE receiver_id = ? AND deleted_by_receiver = 0
             UNION
-            SELECT receiver_id FROM messages WHERE sender_id = ?
+            SELECT receiver_id FROM messages WHERE sender_id = ? AND deleted_by_sender = 0
         )
         ORDER BY last_time DESC
         LIMIT 50";
