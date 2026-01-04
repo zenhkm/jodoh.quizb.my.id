@@ -151,7 +151,8 @@ if (isset($_POST['next_step'])) {
             <?php endif; ?>
             <label class="trait-item"><input type="radio" name="gender" value="male"> Laki-laki</label>
             <label class="trait-item"><input type="radio" name="gender" value="female"> Perempuan</label>
-            <button type="submit" name="next_step">Lanjut</button>
+            <br>
+            <button type="submit" name="next_step" class="full-width">Lanjut</button>
         </form>
 
     <?php elseif ($_SESSION['step'] == 2): ?>
@@ -163,7 +164,7 @@ if (isset($_POST['next_step'])) {
                     <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
                 <?php endforeach; ?>
             </div>
-            <button type="submit" name="next_step">Lanjut</button>
+            <button type="submit" name="next_step" class="full-width">Lanjut</button>
         </form>
 
     <?php elseif ($_SESSION['step'] == 3): ?>
@@ -177,12 +178,11 @@ if (isset($_POST['next_step'])) {
                 <?php endforeach; ?>
             </div>
             
-            <div style="margin-top:10px; padding:10px; border:1px dashed #ccc; border-radius:8px;">
+            <div style="margin-top:10px; padding:10px; border:1px dashed #ccc; border-radius:8px; margin-bottom:15px;">
                 <p style="margin:0 0 8px 0; font-size:14px; color:#666;">Kriteria tidak ada? Tambahkan sendiri:</p>
                 <input type="text" name="new_trait" placeholder="Contoh: Suka K-Pop" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; box-sizing:border-box;">
             </div>
-            <br>
-            <button type="submit" name="next_step">Masuk Halaman Tunggu</button>
+            <button type="submit" name="next_step" class="full-width">Masuk Halaman Tunggu</button>
         </form>
 
     <?php elseif ($_SESSION['step'] == 4): ?>
