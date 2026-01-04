@@ -110,11 +110,48 @@ if (otherId) {
         .then(r => r.json()).then(data => {
             const el = document.getElementById('conversations');
             el.innerHTML = '';
-            (data.conversations || []).forEach(c => {
+            const convs = data.conversations || [];
+            if (convs.length === 0) {
+                el.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Belum ada percakapan.</p>';
+                return;
+            }
+            convs.forEach(c => {
                 const a = document.createElement('a');
                 a.href = 'messages.php?user_id=' + c.user_id;
-                a.innerText = c.nickname + ' (' + c.unread + ')';
-                a.style.display = 'block'; a.style.padding = '8px 0';
+                a.className = 'conv-item';
+                
+                // Avatar placeholder (first letter)
+                const initial = c.nickname.charAt(0).toUpperCase();
+                
+                // Format time (simple)
+                let timeStr = '';
+                if (c.last_time) {
+                    const d = new Date(c.last_time.replace(/-/g, '/')); // fix for safari/older browsers
+                    const now = new Date();
+                    if (d.toDateString() === now.toDateString()) {
+                        timeStr = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+                    } else {
+                        timeStr = d.getDate() + '/' + (d.getMonth()+1);
+                    }
+                }
+
+                // Truncate message
+                let msgPreview = c.last_message || '';
+                if (msgPreview.length > 30) msgPreview = msgPreview.substring(0, 30) + '...';
+
+                a.innerHTML = `
+                    <div class="conv-avatar">${initial}</div>
+                    <div class="conv-info">
+                        <div class="conv-top">
+                            <span class="conv-name">${escapeHtml(c.nickname)}</span>
+                            <span class="conv-time">${timeStr}</span>
+                        </div>
+                        <div class="conv-bottom">
+                            <span class="conv-preview">${escapeHtml(msgPreview)}</span>
+                            ${c.unread > 0 ? `<span class="conv-badge">${c.unread}</span>` : ''}
+                        </div>
+                    </div>
+                `;
                 el.appendChild(a);
             });
         });

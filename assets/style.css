@@ -99,6 +99,78 @@ button.small{padding:6px 8px;font-size:14px}
 /* Slight elevation when open */
 .chat-modal.open{box-shadow:0 16px 40px rgba(0,0,0,0.16);}
 
+/* Conversation List Styles */
+.conv-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+}
+.conv-item:hover {
+  background: #f9f9f9;
+}
+.conv-item:last-child {
+  border-bottom: none;
+}
+.conv-avatar {
+  width: 48px;
+  height: 48px;
+  background: #e0e0e0;
+  color: #555;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.conv-info {
+  flex: 1;
+  min-width: 0; /* allows text truncation */
+}
+.conv-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.conv-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 16px;
+}
+.conv-time {
+  font-size: 12px;
+  color: #95a5a6;
+}
+.conv-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.conv-preview {
+  color: #7f8c8d;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 8px;
+}
+.conv-badge {
+  background: var(--success);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  font-weight: bold;
+}
 
 /* Desktop tweaks */
 @media (min-width:601px){

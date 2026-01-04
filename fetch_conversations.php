@@ -17,25 +17,40 @@ $conn->query("CREATE TABLE IF NOT EXISTS messages (
     INDEX(receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-$sql = "SELECT u.id as user_id, u.nickname, SUM(CASE WHEN m.receiver_id = ? AND m.read_at IS NULL THEN 1 ELSE 0 END) as unread
+$sql = "SELECT 
+            u.id as user_id, 
+            u.nickname,
+            (SELECT message FROM messages m WHERE (m.sender_id = u.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_message,
+            (SELECT created_at FROM messages m WHERE (m.sender_id = u.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_time,
+            (SELECT COUNT(*) FROM messages m WHERE m.sender_id = u.id AND m.receiver_id = ? AND m.read_at IS NULL) as unread
         FROM users u
-        JOIN (
-            SELECT sender_id as uid FROM messages WHERE receiver_id = ?
+        WHERE u.id IN (
+            SELECT sender_id FROM messages WHERE receiver_id = ?
             UNION
-            SELECT receiver_id as uid FROM messages WHERE sender_id = ?
-        ) m2 ON m2.uid = u.id
-        LEFT JOIN messages m ON ( (m.sender_id = u.id AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = u.id) )
-        GROUP BY u.id
-        ORDER BY MAX(m.created_at) DESC
+            SELECT receiver_id FROM messages WHERE sender_id = ?
+        )
+        ORDER BY last_time DESC
         LIMIT 50";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param('iiiii', $me, $me, $me, $me, $me);
+// Params: 
+// 1,2: last_message subquery
+// 3,4: last_time subquery
+// 5: unread subquery
+// 6: IN clause (received)
+// 7: IN clause (sent)
+$stmt->bind_param('iiiiiii', $me, $me, $me, $me, $me, $me, $me);
 $stmt->execute();
 $res = $stmt->get_result();
 $rows = [];
 while ($r = $res->fetch_assoc()) {
-    $rows[] = ['user_id' => (int)$r['user_id'], 'nickname' => $r['nickname'], 'unread' => (int)$r['unread']];
+    $rows[] = [
+        'user_id' => (int)$r['user_id'], 
+        'nickname' => $r['nickname'], 
+        'last_message' => $r['last_message'],
+        'last_time' => $r['last_time'],
+        'unread' => (int)$r['unread']
+    ];
 }
 
 echo json_encode(['success'=>true,'conversations'=>$rows]);
