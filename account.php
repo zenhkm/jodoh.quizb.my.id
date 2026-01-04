@@ -120,8 +120,6 @@ if (!$edit_mode && $has_data):
 <?php endif; ?>
 
 <p>Sifat diri: <br><small><?php echo htmlspecialchars(implode(', ', $my_traits)); ?></small></p>
-<br>
-<a href="?reset=1" class="reset-link">Reset & Mulai Lagi (reset kriteria calon)</a>
 </div></div>
 
 <nav class="bottom-nav">
