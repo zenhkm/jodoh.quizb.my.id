@@ -36,7 +36,7 @@ if ($other > 0) {
     <h3>Pesan</h3>
 
     <div style="background:#fff3cd; color:#856404; padding:12px; border-radius:8px; border:1px solid #ffeeba; margin-bottom:16px; font-size:13px; line-height:1.5;">
-        ⚠️ <strong>Peringatan Keamanan:</strong> Jangan pernah memberikan nomor WA Anda di sini. Namun jika sudah yakin, silakan menghubungi Admin (<strong><a href="https://wa.me/6285743399595" style="color:#856404; text-decoration:underline;">Zainul Hakim</a></strong>).
+        ⚠️ <strong>Peringatan Keamanan:</strong> Jangan pernah memberikan nomor WA Anda di sini. Namun jika sudah yakin, silakan menghubungi Admin (<strong><a href="https://wa.me/6285743399595" style="color:#856404; text-decoration:underline;">Hubungi Admin</a></strong>).
     </div>
     
     <?php if ($other_info): ?>
