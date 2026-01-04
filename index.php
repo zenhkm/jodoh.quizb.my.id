@@ -100,6 +100,23 @@ if (isset($_POST['next_step'])) {
                 $stmt->bind_param("is", $my_id, $trait);
                 $stmt->execute();
             }
+
+            // Cek jika ada kriteria baru yang ditambahkan
+            $new_trait = isset($_POST['new_trait']) ? trim($_POST['new_trait']) : '';
+            if (!empty($new_trait)) {
+                // 1. Masukkan ke tabel master traits jika belum ada
+                $stmt_master = $conn->prepare("INSERT IGNORE INTO traits (name) VALUES (?)");
+                $stmt_master->bind_param("s", $new_trait);
+                $stmt_master->execute();
+
+                // 2. Masukkan ke user_traits untuk user ini
+                $stmt_user = $conn->prepare("INSERT INTO user_traits (user_id, trait_name, type) VALUES (?, ?, 'self')");
+                $stmt_user->bind_param("is", $my_id, $new_trait);
+                $stmt_user->execute();
+                
+                $selected_traits[] = $new_trait;
+            }
+
             $_SESSION['my_traits'] = $selected_traits;
             $_SESSION['step'] = 4;
         }
@@ -150,6 +167,12 @@ if (isset($_POST['next_step'])) {
             <?php foreach ($traits_list as $t): ?>
                 <label class="trait-item"><input type="checkbox" name="traits[]" value="<?php echo $t; ?>"> <?php echo $t; ?></label>
             <?php endforeach; ?>
+            
+            <div style="margin-top:10px; padding:10px; border:1px dashed #ccc; border-radius:8px;">
+                <p style="margin:0 0 8px 0; font-size:14px; color:#666;">Kriteria tidak ada? Tambahkan sendiri:</p>
+                <input type="text" name="new_trait" placeholder="Contoh: Suka K-Pop" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; box-sizing:border-box;">
+            </div>
+            <br>
             <button type="submit" name="next_step">Masuk Halaman Tunggu</button>
         </form>
 
