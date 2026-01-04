@@ -104,6 +104,7 @@ if (isset($_POST['next_step'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Biro Jodoh Anonim</title>
     <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -151,7 +152,7 @@ if (isset($_POST['next_step'])) {
             <!-- Match results will be injected here -->
         </div>
         <br>
-        <a href="?reset=1" class="reset-link">Reset & Mulai Lagi</a>
+        <a href="#" onclick="confirmReset(event)" class="reset-link">Reset & Mulai Lagi</a>
     <?php endif; ?>
 
 </div>
@@ -180,6 +181,24 @@ if (isset($_POST['next_step'])) {
 <script>
     let currentChatUser = null;
     let chatPoll = null;
+
+    function confirmReset(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Reset kriteria?',
+            text: "Kriteria calon pasangan Anda akan dihapus dan Anda akan memilih ulang.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3498db',
+            cancelButtonColor: '#95a5a6',
+            confirmButtonText: 'Ya, reset!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '?reset=1';
+            }
+        });
+    }
 
     function renderMatches(list) {
         const area = document.getElementById('waiting-area');

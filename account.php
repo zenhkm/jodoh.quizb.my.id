@@ -81,6 +81,7 @@ $t->bind_param('i', $me); $t->execute(); $r = $t->get_result(); $my_traits = [];
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Akun - Biro Jodoh</title>
 <link rel="stylesheet" href="assets/style.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div class="container"><div class="card">
@@ -148,5 +149,23 @@ if (!$edit_mode && $has_data):
     <a href="account.php" class="active">Akun</a>
   </div>
 </header>
+<script>
+<?php if (!empty($saved_msg)): ?>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?php echo addslashes($saved_msg); ?>',
+        timer: 2000,
+        showConfirmButton: false
+    });
+<?php endif; ?>
+<?php if (!empty($error_msg)): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '<?php echo addslashes($error_msg); ?>'
+    });
+<?php endif; ?>
+</script>
 </body>
 </html>

@@ -55,6 +55,7 @@ while($row = $r->fetch_assoc()) {
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Profil <?php echo htmlspecialchars($profile['nickname']); ?> - Biro Jodoh</title>
 <link rel="stylesheet" href="assets/style.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div class="container">

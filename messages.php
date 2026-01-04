@@ -28,6 +28,7 @@ if ($other > 0) {
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Pesan - Biro Jodoh</title>
     <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div class="container">
@@ -111,16 +112,41 @@ if (otherId) {
 
     // Delete message function
     window.deleteMessage = function(id) {
-        if(!confirm('Hapus pesan ini?')) return;
-        const fd = new FormData();
-        fd.append('id', id);
-        fetch('delete_message.php', {method:'POST', body:fd})
-            .then(r=>r.json())
-            .then(d=>{
-                if(d.success) loadMessages();
-                else alert('Gagal menghapus');
-            })
-            .catch(e=>console.error(e));
+        Swal.fire({
+            title: 'Hapus pesan?',
+            text: "Pesan yang dihapus tidak bisa dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const fd = new FormData();
+                fd.append('id', id);
+                fetch('delete_message.php', {method:'POST', body:fd})
+                    .then(r=>r.json())
+                    .then(d=>{
+                        if(d.success) {
+                            loadMessages();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus!',
+                                text: 'Pesan telah dihapus.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Gagal!', 'Gagal menghapus pesan.', 'error');
+                        }
+                    })
+                    .catch(e=>{
+                        console.error(e);
+                        Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
+                    });
+            }
+        });
     };
 
     document.getElementById('msg-form').addEventListener('submit', function(e){
@@ -131,8 +157,11 @@ if (otherId) {
         const btn = document.getElementById('msg-send'); btn.disabled = true;
         fetch('send_message.php', {method:'POST', body: fd}).then(r => r.json()).then(resp => {
             if (resp.success) { input.value = ''; loadMessages(); }
-            else alert('Gagal mengirim: ' + (resp.error||'Unknown'));
-        }).catch(err => { console.error(err); alert('Gagal'); }).finally(()=>{ btn.disabled = false; input.focus(); });
+            else Swal.fire('Gagal!', 'Gagal mengirim: ' + (resp.error||'Unknown'), 'error');
+        }).catch(err => { 
+            console.error(err); 
+            Swal.fire('Error!', 'Gagal mengirim pesan.', 'error'); 
+        }).finally(()=>{ btn.disabled = false; input.focus(); });
     });
 } else {
     // Load simple conversations: users who sent/received messages with me
@@ -207,16 +236,42 @@ if (otherId) {
 
 // Delete conversation function
 window.deleteConversation = function(userId) {
-    if(!confirm('Hapus seluruh percakapan dengan pengguna ini?')) return;
-    const fd = new FormData();
-    fd.append('user_id', userId);
-    fetch('delete_conversation.php', {method:'POST', body:fd})
-        .then(r=>r.json())
-        .then(d=>{
-            if(d.success) location.reload();
-            else alert('Gagal menghapus percakapan');
-        })
-        .catch(e=>console.error(e));
+    Swal.fire({
+        title: 'Hapus percakapan?',
+        text: "Seluruh riwayat pesan dengan pengguna ini akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus semua!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('user_id', userId);
+            fetch('delete_conversation.php', {method:'POST', body:fd})
+                .then(r=>r.json())
+                .then(d=>{
+                    if(d.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Percakapan telah dihapus.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Gagal!', 'Gagal menghapus percakapan.', 'error');
+                    }
+                })
+                .catch(e=>{
+                    console.error(e);
+                    Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
+                });
+        }
+    });
 };
 
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
