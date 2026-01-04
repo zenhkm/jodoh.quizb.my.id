@@ -78,7 +78,7 @@ while($row = $r->fetch_assoc()) {
         <div style="margin-bottom:20px;">
             <p><strong>Sifat Diri:</strong></p>
             <?php if (!empty($traits_self)): ?>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <div class="traits-display-container" style="display:flex;flex-wrap:wrap;gap:8px;">
                     <?php foreach($traits_self as $trait): ?>
                         <span style="background:#e3f2fd;color:#1565c0;padding:4px 10px;border-radius:16px;font-size:14px;"><?php echo htmlspecialchars($trait); ?></span>
                     <?php endforeach; ?>
@@ -91,7 +91,7 @@ while($row = $r->fetch_assoc()) {
         <div style="margin-bottom:24px;">
             <p><strong>Kriteria Idaman:</strong></p>
             <?php if (!empty($traits_target)): ?>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <div class="traits-display-container" style="display:flex;flex-wrap:wrap;gap:8px;">
                     <?php foreach($traits_target as $trait): ?>
                         <span style="background:#fce4ec;color:#c2185b;padding:4px 10px;border-radius:16px;font-size:14px;"><?php echo htmlspecialchars($trait); ?></span>
                     <?php endforeach; ?>
