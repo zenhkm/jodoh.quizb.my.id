@@ -75,7 +75,7 @@ button.small{padding:6px 8px;font-size:14px}
   .chat-modal{left:12px;right:12px;bottom:12px;top:auto;width:auto;max-width:calc(100% - 24px);max-height:50vh;border-radius:12px}
   .chat-modal .messages{max-height:calc(50vh - 120px);}
   .chat-header{padding:14px}
-  .messages{padding:14px}
+  .messages{padding:14px;padding-bottom:80px}
   .chat-form{position:sticky;bottom:56px;padding:10px;background:#fff;border-top:1px solid #eee;z-index:9000}
   /* show bottom nav on mobile */
   .bottom-nav{display:flex;z-index:10000}
