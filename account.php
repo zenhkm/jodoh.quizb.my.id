@@ -120,6 +120,11 @@ if (!$edit_mode && $has_data):
 <?php endif; ?>
 
 <p>Sifat diri: <br><small><?php echo htmlspecialchars(implode(', ', $my_traits)); ?></small></p>
+
+<div style="margin-top:24px;border-top:1px solid #eee;padding-top:16px;">
+    <a href="about.php" style="color:#7f8c8d;text-decoration:none;margin-right:16px;font-size:14px;">Tentang Kami</a>
+    <a href="privacy.php" style="color:#7f8c8d;text-decoration:none;font-size:14px;">Kebijakan Privasi</a>
+</div>
 </div></div>
 
 <nav class="bottom-nav">
