@@ -51,6 +51,29 @@ button.small{padding:6px 8px;font-size:14px}
 .bottom-nav a span{font-size:12px;display:block}
 .bottom-nav a.active{color:var(--primary);font-weight:700}
 
+/* Badge for unread messages */
+.nav-item { position: relative; }
+.badge {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  position: absolute;
+  top: 5px;
+  right: 25%;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+  border: 2px solid #fff;
+}
+.top-nav a { position: relative; }
+.top-nav .badge {
+  top: -5px;
+  right: -5px;
+}
+
 /* Chat */
 .chat-modal{display:none; position:fixed; right:12px; bottom:12px; width:360px; max-height:70vh; background:#fff; border:1px solid #ddd; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08); overflow:hidden; display:flex; flex-direction:column; z-index:9999}
 .chat-modal.open{display:flex}

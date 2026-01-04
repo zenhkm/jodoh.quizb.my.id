@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_db_id'])) {
     exit;
 }
 $me = intval($_SESSION['user_db_id']);
+$unread_count = getUnreadCount($conn, $me);
 $other = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 
 // Fetch user info for header
@@ -69,19 +70,19 @@ if ($other > 0) {
   <a href="messages.php" class="nav-item active" aria-label="Pesan">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v14l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
     <span>Pesan</span>
+    <?php if ($unread_count > 0): ?>
+      <span class="badge"><?php echo $unread_count; ?></span>
+    <?php endif; ?>
   </a>
   <a href="account.php" class="nav-item" aria-label="Akun">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"></path></svg>
     <span>Akun</span>
   </a>
-</nav> 
+</nav>
 <header class="top-nav">
   <div class="top-nav-inner">
     <a href="index.php">Home</a>
-    <a href="messages.php" class="active">Pesan</a>
-    <a href="account.php">Akun</a>
-  </div>
-</header>
+    <a href="messages.php" class="active">Pesan <?php echo ($unread_count > 0) ? "<span class='badge'>$unread_count</span>" : ""; ?></a>
 
 <script>
 const otherId = <?php echo $other ?: 0; ?>;
